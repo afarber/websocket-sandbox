@@ -5,31 +5,35 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketOpen;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @WebSocket
 public class SandboxWebSocket {
+    private static final Logger LOG = LoggerFactory.getLogger(SandboxWebSocket.class);
+
     private Session session;
 
     @OnWebSocketOpen
     public void onWebSocketOpen(Session session) {
-        System.out.println("CONNECTED: " + session.getRemoteSocketAddress());
+        LOG.info("CONNECTED: {}", session.getRemoteSocketAddress());
         this.session = session;
     }
 
     @OnWebSocketClose
     public void onWebSocketClose(int statusCode, String reason) {
         this.session = null;
-        System.out.println("CLOSE: " + statusCode + " " + reason);
+        LOG.info("CLOSE: {} {}", statusCode, reason);
     }
 
     @OnWebSocketError
     public void onWebSocketError(Throwable cause) {
-        System.out.println("ERROR: " + cause.toString());
+        LOG.info("ERROR: {}", cause);
     }
 
     @OnWebSocketMessage
     public void onWebSocketText(String message) {
-        System.out.println("RECEIVED: " + message.length() + " characters");
+        LOG.info("RECEIVED: {} characters", message.length());
         session.sendText("Text length is " + message.length(), Callback.NOOP);
         session.sendText("Text hash is " + message.hashCode(), Callback.NOOP);
     }
